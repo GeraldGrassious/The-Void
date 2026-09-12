@@ -15,8 +15,7 @@
             <Style Selector="TextBox.messageBox">
                 <Setter Property="AcceptsReturn" Value="True"/>
                 <Setter Property="TextWrapping" Value="Wrap"/>
-                <Setter Property="Height" Value="100"/>
-                <Setter Property="Margin" Value="30"/>
+                <Setter Property="Margin" Value="20"/>
                 <Setter Property="Padding" Value="15"/>
                 <Setter Property="Background" Value="#111111"/>
                 <Setter Property="BorderThickness" Value="0"/>
@@ -39,11 +38,37 @@
                 <Setter Property="BorderBrush" Value="#111111"/>
                 <Setter Property="Background" Value="#111111"/>
             </Style>
+
+            <Style Selector="TextBox.receivedBox">
+                <Setter Property="IsReadOnly" Value="True"/>
+                <Setter Property="TextWrapping" Value="Wrap"/>
+                <Setter Property="Margin" Value="20"/>
+                <Setter Property="Padding" Value="15"/>
+                <Setter Property="Background" Value="#111111"/>
+                <Setter Property="BorderThickness" Value="0"/>
+                <Setter Property="BorderBrush" Value="Transparent"/>
+                <Setter Property="CornerRadius" Value="15"/>
+                <Setter Property="FontFamily" Value="{StaticResource LowerPixel}"/>
+                <Setter Property="FontSize" Value="20"/>
+                <Setter Property="LetterSpacing" Value="1"/>
+                <Setter Property="Foreground" Value="#EEEEEE"></Setter>
+            </Style>
+
+            <Style Selector="TextBox.receivedBox:focus /template/ Border#PART_BorderElement">
+                <Setter Property="Background" Value="#111111"/>
+                <Setter Property="BorderBrush" Value="#111111"/>
+                <Setter Property="BorderThickness" Value="0"/>
+            </Style>
+
+            <Style Selector="TextBox.receivedBox:pointerover /template/ Border#PART_BorderElement">
+                <Setter Property="BorderBrush" Value="#111111"/>
+                <Setter Property="Background" Value="#111111"/>
+            </Style>
             
         </Window.Styles>
 
-        <Grid>
-            <Border Background="#010101" VerticalAlignment="Top" PointerPressed="TitleBar_PointerPressed">
+        <Grid RowDefinitions="10*, 50*, 30*">
+            <Border Grid.Row="0" Background="#010101" VerticalAlignment="Top" PointerPressed="TitleBar_PointerPressed">
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Background="Transparent">
     
                     <Button Content="—" Background="Transparent" FontSize="18" Click="MinimizeButton_Clicked"/>
@@ -55,9 +80,10 @@
                 </StackPanel>
             </Border>
 
-            <StackPanel VerticalAlignment="Bottom">
-                <TextBox x:Name="MessageBox" Classes="messageBox" AcceptsReturn="True" KeyDown="MessageBox_KeyDown"/>
-            </StackPanel>
+
+            <TextBox Grid.Row="1" x:Name="ReceivedBox" Classes="receivedBox"/>
+
+            <TextBox Grid.Row="2" x:Name="MessageBox" Classes="messageBox" AcceptsReturn="True" KeyDown="MessageBox_KeyDown"/>
 
         </Grid>
 

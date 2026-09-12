@@ -6,6 +6,7 @@ using System.Threading;
 using System.IO;
 using System.Threading.Tasks;
 using System.Collections.Generic;
+using Avalonia.Controls;
 
 namespace TheVoid;
 
@@ -15,15 +16,18 @@ public class Message(string type, string data)
     public string Data => data;
 }
 
-public class MessageHandler
+public class MessageHandler(TextBox receivedMessagesBox)
 {
     private readonly Uri uri = new("wss://the-void.cc");
-    private Queue<string> messageQueue = new();
+    private readonly Queue<string> messageQueue = new();
+
+    private TextBox receivedBox => receivedMessagesBox;
 
     public async void MessageLoop()
     {
         ClientWebSocket ws = new();
 
+        // Continue trying to connect if unable
         while (ws.State != WebSocketState.Open)
         {
             try
@@ -38,6 +42,7 @@ public class MessageHandler
             }
         }
 
+        // Does receiving and sending without locking out one of them
         var receiveTask = ReceiveMessages(ws);
         var sendTask = SendMessages(ws);
 
@@ -90,6 +95,12 @@ public class MessageHandler
                 }
 
                 string receivedMessage = Encoding.UTF8.GetString(byteMessage.ToArray(), 0, (int) byteMessage.Length);
+                Message? jsonMessage = JsonSerializer.Deserialize<Message>(receivedMessage);
+
+                if (jsonMessage is not null)
+                {
+                    receivedBox.Text += jsonMessage.Data + '\n';
+                }
             }
         }
     }

@@ -17,7 +17,7 @@ public partial class MainWindow : Window
             RoutingStrategies.Tunnel,  // Sends event before TextBox processes it
             true);  // Allows handled events to be processed (Needed to work for some reason)
 
-        messageHandler = new();
+        messageHandler = new(ReceivedBox);
 
         messageHandler.MessageLoop();
     }
@@ -62,6 +62,7 @@ public partial class MainWindow : Window
         if (!string.IsNullOrEmpty(MessageBox.Text) && !string.IsNullOrWhiteSpace(MessageBox.Text))
         {
             messageHandler.SendChatMessage(MessageBox.Text);
+            ReceivedBox.Text += MessageBox.Text + '\n';
             MessageBox.Clear();
         }
     }
