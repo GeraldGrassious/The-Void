@@ -2,7 +2,43 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+        mc:Ignorable="d" d:DesignWidth="1080" d:DesignHeight="720"
         x:Class="TheVoid.MainWindow"
-        Title="TheVoid">
+
+        Title="The Void" Background="#040404" >
+
+        <Window.Styles>
+            <Style Selector="TextBox.messageBox">
+                <Setter Property="AcceptsReturn" Value="True"/>
+                <Setter Property="TextWrapping" Value="Wrap"/>
+                <Setter Property="Height" Value="100"/>
+                <Setter Property="Margin" Value="30"/>
+                <Setter Property="Padding" Value="15"/>
+                <Setter Property="Background" Value="#222222"/>
+                <Setter Property="BorderThickness" Value="0"/>
+                <Setter Property="BorderBrush" Value="Transparent"/>
+                <Setter Property="CornerRadius" Value="15"/>
+                <Setter Property="PlaceholderText" Value="Type Message Here..."/>
+                <Setter Property="FontFamily" Value="{StaticResource LowerPixel}"/>
+                <Setter Property="FontSize" Value="20"/>
+                <Setter Property="LetterSpacing" Value="1"/>
+            </Style>
+
+            <Style Selector="TextBox.messageBox:focus /template/ Border#PART_BorderElement">
+                <Setter Property="Background" Value="#222222"/>
+                <Setter Property="BorderBrush" Value="#222222"/>
+                <Setter Property="BorderThickness" Value="0"/>
+            </Style>
+
+            <Style Selector="TextBox.messageBox:pointerover /template/ Border#PART_BorderElement">
+                <Setter Property="BorderBrush" Value="#222222"/>
+                <Setter Property="Background" Value="#222222"/>
+            </Style>
+            
+        </Window.Styles>
+
+        <StackPanel VerticalAlignment="Bottom">
+            <TextBox x:Name="MessageBox" Classes="messageBox" AcceptsReturn="True" KeyDown="MessageBox_KeyDown"/>
+        </StackPanel>
+        
 </Window>
