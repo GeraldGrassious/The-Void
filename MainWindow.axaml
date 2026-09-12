@@ -43,8 +43,8 @@
         </Window.Styles>
 
         <Grid>
-            <Border Background="#111111" VerticalAlignment="Top">
-                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Background="Transparent" PointerPressed="TitleBar_PointerPressed">
+            <Border Background="#010101" VerticalAlignment="Top" PointerPressed="TitleBar_PointerPressed">
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Background="Transparent">
     
                     <Button Content="—" Background="Transparent" FontSize="18" Click="MinimizeButton_Clicked"/>
     

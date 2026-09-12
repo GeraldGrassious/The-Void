@@ -6,6 +6,7 @@ namespace TheVoid;
 
 public partial class MainWindow : Window
 {
+    private MessageHandler messageHandler;
     public MainWindow()
     {
         InitializeComponent();
@@ -15,6 +16,10 @@ public partial class MainWindow : Window
             MessageBox_KeyDown,  // Function to call when event is fired
             RoutingStrategies.Tunnel,  // Sends event before TextBox processes it
             true);  // Allows handled events to be processed (Needed to work for some reason)
+
+        messageHandler = new();
+
+        messageHandler.MessageLoop();
     }
 
     private void TitleBar_PointerPressed(object? sender, PointerPressedEventArgs e)
@@ -41,7 +46,7 @@ public partial class MainWindow : Window
         Close();
     }
 
-    private void MessageBox_KeyDown(object? sender, Avalonia.Input.KeyEventArgs e)
+    private void MessageBox_KeyDown(object? sender, KeyEventArgs e)
     {
         if (e.Key != Key.Enter)
         {
@@ -54,6 +59,10 @@ public partial class MainWindow : Window
         }
 
         e.Handled = true;
-        // Send Message here
+        if (!string.IsNullOrEmpty(MessageBox.Text) && !string.IsNullOrWhiteSpace(MessageBox.Text))
+        {
+            messageHandler.SendChatMessage(MessageBox.Text);
+            MessageBox.Clear();
+        }
     }
 }
