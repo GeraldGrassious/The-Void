@@ -6,6 +6,7 @@
         x:Class="TheVoid.MainWindow"
 
         Title="The Void" 
+        Icon="avares://TheVoid/Assets/favicon.ico"
         Background="#040404" 
         WindowDecorations="None"
         ExtendClientAreaToDecorationsHint="True"
@@ -71,11 +72,11 @@
             <Border Grid.Row="0" Background="#010101" VerticalAlignment="Top" PointerPressed="TitleBar_PointerPressed">
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Background="Transparent">
     
-                    <Button Content="—" Background="Transparent" FontSize="18" Click="MinimizeButton_Clicked"/>
+                    <Button Content="—" VerticalAlignment="Center" Background="Transparent" CornerRadius="0" FontSize="18" Click="MinimizeButton_Clicked"/>
     
-                    <Button Content="□" Background="Transparent" FontSize="18" Click="MaximizeButton_Clicked"/>
+                    <Button Content="☐" VerticalAlignment="Center"  Background="Transparent" CornerRadius="0" FontSize="18" Click="MaximizeButton_Clicked"/>
     
-                    <Button Content="✕" Background="Transparent" FontSize="18" Click="CloseButton_Clicked"/>
+                    <Button Content="✕" VerticalAlignment="Center"  Background="Transparent" CornerRadius="0" FontSize="18" Click="CloseButton_Clicked"/>
     
                 </StackPanel>
             </Border>

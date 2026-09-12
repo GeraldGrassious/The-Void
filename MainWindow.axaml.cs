@@ -35,9 +35,20 @@ public partial class MainWindow : Window
         WindowState = WindowState.Minimized;
     }
 
-    private void MaximizeButton_Clicked(object? sender, RoutedEventArgs e)
+    private void MaximizeButton_Clicked(object sender, RoutedEventArgs e)
     {
-        WindowState = WindowState is WindowState.Maximized ? WindowState.Normal : WindowState.Maximized;
+        var maximizeButton = (Button) sender;
+
+        if (WindowState is WindowState.Maximized)
+        {
+            WindowState = WindowState.Normal;
+            maximizeButton.Content = "☐";
+        }
+        else
+        {
+            WindowState = WindowState.Maximized;
+            maximizeButton.Content = "🗗";
+        }
     }
 
 
