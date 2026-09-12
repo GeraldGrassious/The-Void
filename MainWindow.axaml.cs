@@ -17,6 +17,30 @@ public partial class MainWindow : Window
             true);  // Allows handled events to be processed (Needed to work for some reason)
     }
 
+    private void TitleBar_PointerPressed(object? sender, PointerPressedEventArgs e)
+    {
+        if (e.GetCurrentPoint(this).Properties.IsLeftButtonPressed)
+        {
+            BeginMoveDrag(e);
+        }
+    }
+
+    private void MinimizeButton_Clicked(object? sender, RoutedEventArgs e)
+    {
+        WindowState = WindowState.Minimized;
+    }
+
+    private void MaximizeButton_Clicked(object? sender, RoutedEventArgs e)
+    {
+        WindowState = WindowState is WindowState.Maximized ? WindowState.Normal : WindowState.Maximized;
+    }
+
+
+    private void CloseButton_Clicked(object? sender, RoutedEventArgs e)
+    {
+        Close();
+    }
+
     private void MessageBox_KeyDown(object? sender, Avalonia.Input.KeyEventArgs e)
     {
         if (e.Key != Key.Enter)
