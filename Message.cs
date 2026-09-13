@@ -7,6 +7,10 @@ using System.IO;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using Avalonia.Controls;
+using Avalonia.LogicalTree;
+using Avalonia.VisualTree;
+using System.Linq;
+using System.Numerics;
 
 namespace TheVoid;
 
@@ -103,7 +107,26 @@ public class MessageHandler(string name, TextBox receivedMessagesBox)
 
                 if (jsonMessage is not null)
                 {
-                    receivedBox.Text += jsonMessage.Sender + '\n' + jsonMessage.Data + "\n\n";
+                    if (jsonMessage.Type == "chat")
+                    {
+                        // Scroll if you're at bottom
+                        bool shouldScrollDown = false;
+                        ScrollViewer? receivedBoxScroll = receivedBox.GetVisualDescendants().OfType<ScrollViewer>().FirstOrDefault();
+                        if (receivedBoxScroll is not null)
+                        {
+                            if (receivedBoxScroll.Offset.Y == receivedBoxScroll.ScrollBarMaximum.Y)
+                            {
+                                shouldScrollDown = true;
+                            }
+                        }
+
+                        receivedBox.Text += jsonMessage.Sender + '\n' + jsonMessage.Data + "\n\n";
+
+                        if (shouldScrollDown)
+                        {
+                            receivedBoxScroll?.ScrollToEnd();
+                        }
+                    }
                 }
             }
         }

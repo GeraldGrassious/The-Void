@@ -8,9 +8,10 @@
         Title="The Void" 
         Icon="avares://TheVoid/Assets/favicon.ico"
         Background="#040404" 
-        WindowDecorations="None"
+        WindowDecorations="BorderOnly"
         ExtendClientAreaToDecorationsHint="True"
         ExtendClientAreaTitleBarHeightHint="32"
+        CanResize="True"
 
         KeyDown="Window_KeyDown">
 
