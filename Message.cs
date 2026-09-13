@@ -10,28 +10,32 @@ using Avalonia.Controls;
 using Avalonia.VisualTree;
 using System.Linq;
 using Avalonia.Media;
+using Avalonia.Controls.Documents;
 
 namespace TheVoid;
 
-public class Message(string type, string sender, string data)
+public class Message(string type, string sender, string senderNameColour, string data)
 {
     public string Type => type;
     public string Sender => sender;
+    public string SenderNameColour => senderNameColour;
     public string Data => data;
 }
 
-public class MessageHandler(string name, ListBox receivedMessagesBox, TextBlock isConnectedText)
+public class MessageHandler(string name, string nameColour, ListBox receivedMessagesBox, TextBlock isConnectedText)
 {
     private readonly Uri uri = new("wss://the-void.cc");
     private readonly Queue<string> messageQueue = new();
 
     private string username => name;
+    private string usernameColour => nameColour;
     private ListBox messageBox => receivedMessagesBox;
     private TextBlock connectionText => isConnectedText;
 
     private string previousSender = "";
 
     public string Username { get {return username;} }
+    public string UsernameColour { get {return usernameColour;} }
     public string PreviousSender { get {return previousSender;} set {previousSender = value;} }
 
     public async void MessageLoop()
@@ -137,30 +141,44 @@ public class MessageHandler(string name, ListBox receivedMessagesBox, TextBlock 
                                 }
                             }
 
-                            string messageText; //username == previousSender ? jsonMessage.Data : jsonMessage.Sender + " (You)\n" + jsonMessage.Data;
+                            TextBlock messageBlock = new() {TextWrapping = TextWrapping.Wrap};
 
                             if (jsonMessage.Sender == previousSender)
                             {
-                                messageText = jsonMessage.Data;
+                                messageBlock?.Inlines?.Add(jsonMessage.Data);
                             }
                             else
                             {
-                                messageText = jsonMessage.Sender + "\n" + jsonMessage.Data;
+                                messageBlock?.Inlines?.Add(new Run(jsonMessage.Sender + "\n") {FontWeight = FontWeight.Bold, Foreground = SolidColorBrush.Parse(jsonMessage.SenderNameColour)});
+                                messageBlock?.Inlines?.Add(new Run(jsonMessage.Data));
+
                                 previousSender = jsonMessage.Sender;
 
                                 int itemCount = messageBox.ItemCount;
 
                                 if (itemCount > 0)
                                 {
-                                    messageBox.Items[itemCount - 1] += "\n";
+                                    var itemBlock = (TextBlock?) messageBox.Items[itemCount - 1];
+                                    itemBlock?.Inlines?.Add(new Run("\n"));
                                 }
                             }
 
-                            messageBox.Items.Add(messageText);
+                            messageBox.Items.Add(messageBlock);
 
                             if (shouldScrollDown)
                             {
-                                messageBoxScroll?.ScrollToEnd();
+                                messageBoxScroll?.Offset = new Avalonia.Vector(0, messageBoxScroll.ScrollBarMaximum.Y);
+                                int itemCount = messageBox.ItemCount;
+
+                                if (itemCount > 0)
+                                {
+                                    var bottomItem = messageBox.Items[itemCount - 1];
+
+                                    if (bottomItem is not null)
+                                    {
+                                        messageBox.ScrollIntoView(bottomItem);
+                                    }
+                                }
                             }
                         }
                     }
@@ -180,7 +198,7 @@ public class MessageHandler(string name, ListBox receivedMessagesBox, TextBlock 
     
     private string ChatToJson(string message)
     {
-        Message newMessage = new("chat", username, message);
+        Message newMessage = new("chat", username, usernameColour, message);
 
         string jsonString = JsonSerializer.Serialize(newMessage);
 
@@ -199,8 +217,6 @@ public class MessageHandler(string name, ListBox receivedMessagesBox, TextBlock 
         {
             connectionText.Text = "Attempting to Connect...";
             connectionText.Foreground = SolidColorBrush.Parse("#CC3333");
-
-            int itemCount = messageBox.ItemCount;
         }
     }
 }

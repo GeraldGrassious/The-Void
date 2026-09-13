@@ -2,6 +2,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+
         mc:Ignorable="d" d:DesignWidth="600" d:DesignHeight="400"
         x:Class="TheVoid.MainWindow"
 
@@ -27,7 +28,6 @@
             </Style>
 
             <Style Selector="TextBox.messageInput">
-                <!-- <Setter Property="AcceptsReturn" Value="True"/> -->
                 <Setter Property="TextWrapping" Value="Wrap"/>
                 <Setter Property="Margin" Value="20"/>
                 <Setter Property="Padding" Value="15"/>
@@ -68,8 +68,8 @@
             
         </Window.Styles>
 
-        <Grid RowDefinitions="10*, 60*, 30*">
-            <Border Grid.Row="0" Background="#010101" VerticalAlignment="Top" PointerPressed="TitleBar_PointerPressed">
+        <Grid RowDefinitions="10*, 60*, 30*" ColumnDefinitions="*">
+            <Border Grid.Row="0" Grid.Column="0" Background="#010101" VerticalAlignment="Top" PointerPressed="TitleBar_PointerPressed">
                 <DockPanel>
                     <TextBlock x:Name="ConnectionText" Classes="connectionText">Attempting to Connect...</TextBlock>
 
@@ -78,8 +78,8 @@
                     <Button DockPanel.Dock="Right" Content="—" HorizontalAlignment="Right" VerticalAlignment="Center" Background="Transparent" Foreground="#EEEEEE" CornerRadius="0" FontSize="18" Click="MinimizeButton_Clicked"/>
                 </DockPanel>
             </Border>
-            
-            <ListBox Grid.Row="1" x:Name="MessageBox" Classes="messageBox" SelectionMode="Single" IsEnabled="False" IsVisible="False" KeyDown="MessageBox_KeyDown">
+
+            <ListBox Grid.Row="1" Grid.Column="0" x:Name="MessageBox" Classes="messageBox" SelectionMode="Single" IsEnabled="False" IsVisible="False" KeyDown="MessageBox_KeyDown">
                 <ListBox.Styles>
                     <Style Selector="ListBoxItem">
                         <Setter Property="Padding" Value="0"/>
@@ -93,10 +93,12 @@
                     </Style>
                 </ListBox.Styles>
             </ListBox>
-        
-            <TextBox Grid.Row="2" x:Name="MessageInput" Classes="messageInput" AcceptsReturn="True" KeyDown="MessageInput_KeyDown" IsEnabled="False" IsVisible="False"/>
 
-            <TextBox Grid.Row="2" x:Name="NameBox" Classes="messageInput" FontSize="50" PlaceholderText="Type Username Here..." KeyDown="NameBox_KeyDown"/>
+            <ColorView x:Name="ColourPicker" Grid.Row="1" IsAlphaEnabled="False" IsAlphaVisible="False" IsAccentColorsVisible="False" IsColorComponentsVisible="False" IsColorPaletteVisible="False" ColorChanged="ColourPicker_ColourChanged"/>
+        
+            <TextBox Grid.Row="2" Grid.Column="0" x:Name="MessageInput" Classes="messageInput" AcceptsReturn="True" KeyDown="MessageInput_KeyDown" IsEnabled="False" IsVisible="False"/>
+
+            <TextBox Grid.Row="2" Grid.Column="0" x:Name="NameBox" Classes="messageInput" FontSize="50" PlaceholderText="Type Username Here..." KeyDown="NameBox_KeyDown"/>
             
         </Grid>
 

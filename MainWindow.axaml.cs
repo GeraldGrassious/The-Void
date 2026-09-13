@@ -1,8 +1,11 @@
 using System.Reflection.Metadata.Ecma335;
 using System.Threading.Tasks;
 using Avalonia.Controls;
+using Avalonia.Controls.Documents;
+using Avalonia.Data;
 using Avalonia.Input;
 using Avalonia.Interactivity;
+using Avalonia.Media;
 
 namespace TheVoid;
 
@@ -73,11 +76,14 @@ public partial class MainWindow : Window
         {
             if (!string.IsNullOrEmpty(NameBox.Text) && !string.IsNullOrWhiteSpace(NameBox.Text))
             {  
-                messageHandler = new(NameBox.Text, MessageBox, ConnectionText);
+                messageHandler = new(NameBox.Text, ColourPicker.Color.ToString(), MessageBox, ConnectionText);
                 messageHandler.MessageLoop();
 
                 NameBox.IsEnabled = false;
                 NameBox.IsVisible = false;
+
+                ColourPicker.IsEnabled = false;
+                ColourPicker.IsVisible = false;
 
                 MessageBox.IsEnabled = true;
                 MessageBox.IsVisible = true;
@@ -88,6 +94,11 @@ public partial class MainWindow : Window
                 ConnectionText.IsVisible = true;
             }
         }
+    }
+
+    private void ColourPicker_ColourChanged(object? sender, ColorChangedEventArgs e)
+    {
+        NameBox.Foreground = SolidColorBrush.Parse(e.NewColor.ToString());
     }
 
     private void MessageInput_KeyDown(object? sender, KeyEventArgs e)
@@ -107,27 +118,30 @@ public partial class MainWindow : Window
         {
             messageHandler?.SendChatMessage(MessageInput.Text);
 
-            string messageText;
+            TextBlock messageBlock = new() {TextWrapping = TextWrapping.Wrap};
             
             if (messageHandler?.Username == messageHandler?.PreviousSender)
             {
-                messageText = MessageInput.Text;
+                messageBlock?.Inlines?.Add(new Run(MessageInput.Text));
             }
             else
             {
-                messageText = messageHandler?.Username + " (You)\n" + MessageInput.Text;
+                Run nameFormatting = new(messageHandler?.Username + " (You)\n") {FontWeight = FontWeight.Bold, Foreground = SolidColorBrush.Parse(messageHandler!.UsernameColour)};
+                messageBlock?.Inlines?.Add(nameFormatting);
+                messageBlock?.Inlines?.Add(MessageInput.Text);
                 messageHandler?.PreviousSender = messageHandler.Username;
 
                 int itemCount = MessageBox.ItemCount;
 
                 if (itemCount > 0)
                 {
-                    MessageBox.Items[itemCount - 1] += "\n";
+                    var textBlock = (TextBlock?) MessageBox.Items[itemCount - 1];
+                    textBlock?.Inlines?.Add(new Run("\n"));
                 }
             }
                 
 
-            MessageBox.Items.Add(messageText);
+            MessageBox.Items.Add(messageBlock);
             MessageInput.Clear();
 
             ScrollToBottom();
