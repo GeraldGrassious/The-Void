@@ -6,7 +6,7 @@ namespace TheVoid;
 
 public partial class MainWindow : Window
 {
-    private MessageHandler messageHandler;
+    private MessageHandler? messageHandler;
     public MainWindow()
     {
         InitializeComponent();
@@ -17,9 +17,9 @@ public partial class MainWindow : Window
             RoutingStrategies.Tunnel,  // Sends event before TextBox processes it
             true);  // Allows handled events to be processed (Needed to work for some reason)
 
-        messageHandler = new(ReceivedBox);
+        messageHandler = null;
 
-        messageHandler.MessageLoop();
+        // messageHandler.MessageLoop();
     }
 
     private void TitleBar_PointerPressed(object? sender, PointerPressedEventArgs e)
@@ -57,6 +57,27 @@ public partial class MainWindow : Window
         Close();
     }
 
+    private void NameBox_KeyDown(object? sender, KeyEventArgs e)
+    {
+        if (e.Key == Key.Enter)
+        {
+            if (!string.IsNullOrEmpty(NameBox.Text) && !string.IsNullOrWhiteSpace(NameBox.Text))
+            {  
+                messageHandler = new(NameBox.Text, ReceivedBox);
+                messageHandler.MessageLoop();
+
+                NameBox.IsEnabled = false;
+                NameBox.IsVisible = false;
+
+                ReceivedBox.IsEnabled = true;
+                ReceivedBox.IsVisible = true;
+
+                MessageBox.IsEnabled = true;
+                MessageBox.IsVisible = true;
+            }
+        }
+    }
+
     private void MessageBox_KeyDown(object? sender, KeyEventArgs e)
     {
         if (e.Key != Key.Enter)
@@ -72,9 +93,30 @@ public partial class MainWindow : Window
         e.Handled = true;
         if (!string.IsNullOrEmpty(MessageBox.Text) && !string.IsNullOrWhiteSpace(MessageBox.Text))
         {
-            messageHandler.SendChatMessage(MessageBox.Text);
-            ReceivedBox.Text += MessageBox.Text + '\n';
+            messageHandler?.SendChatMessage(MessageBox.Text);
+            ReceivedBox.Text += messageHandler?.Username + " (You)\n" + MessageBox.Text + "\n\n";
             MessageBox.Clear();
+
+            ScrollToBottom();
+        }
+    }
+
+    private void Window_KeyDown(object? sender, KeyEventArgs e)
+    {
+        if (e.Key == Key.Down && e.KeyModifiers.HasFlag(KeyModifiers.Control))
+        {
+            ScrollToBottom();
+        }
+
+    }
+
+    private void ScrollToBottom()
+    {
+        int lineCount = ReceivedBox.GetLineCount();
+            
+        if (lineCount > 0)
+        {
+            ReceivedBox.ScrollToLine(ReceivedBox.GetLineCount() - 1);
         }
     }
 }

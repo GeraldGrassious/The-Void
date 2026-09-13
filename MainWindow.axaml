@@ -10,11 +10,13 @@
         Background="#040404" 
         WindowDecorations="None"
         ExtendClientAreaToDecorationsHint="True"
-        ExtendClientAreaTitleBarHeightHint="32">
+        ExtendClientAreaTitleBarHeightHint="32"
+
+        KeyDown="Window_KeyDown">
 
         <Window.Styles>
             <Style Selector="TextBox.messageBox">
-                <Setter Property="AcceptsReturn" Value="True"/>
+                <!-- <Setter Property="AcceptsReturn" Value="True"/> -->
                 <Setter Property="TextWrapping" Value="Wrap"/>
                 <Setter Property="Margin" Value="20"/>
                 <Setter Property="Padding" Value="15"/>
@@ -81,11 +83,13 @@
                 </StackPanel>
             </Border>
 
+            
+            <TextBox Grid.Row="1" x:Name="ReceivedBox" Classes="receivedBox" IsEnabled="False" IsVisible="False"/>
+            
+            <TextBox Grid.Row="2" x:Name="MessageBox" Classes="messageBox" AcceptsReturn="True" KeyDown="MessageBox_KeyDown" IsEnabled="False" IsVisible="False"/>
 
-            <TextBox Grid.Row="1" x:Name="ReceivedBox" Classes="receivedBox"/>
-
-            <TextBox Grid.Row="2" x:Name="MessageBox" Classes="messageBox" AcceptsReturn="True" KeyDown="MessageBox_KeyDown"/>
-
+            <TextBox Grid.Row="2" x:Name="NameBox" Classes="messageBox" FontSize="50" PlaceholderText="Type Username Here..." KeyDown="NameBox_KeyDown"/>
+            
         </Grid>
 
         

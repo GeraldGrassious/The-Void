@@ -10,18 +10,22 @@ using Avalonia.Controls;
 
 namespace TheVoid;
 
-public class Message(string type, string data)
+public class Message(string type, string sender, string data)
 {
     public string Type => type;
+    public string Sender => sender;
     public string Data => data;
 }
 
-public class MessageHandler(TextBox receivedMessagesBox)
+public class MessageHandler(string name, TextBox receivedMessagesBox)
 {
     private readonly Uri uri = new("wss://the-void.cc");
     private readonly Queue<string> messageQueue = new();
 
+    private string username => name;
     private TextBox receivedBox => receivedMessagesBox;
+
+    public string Username {get {return username;}}
 
     public async void MessageLoop()
     {
@@ -99,16 +103,16 @@ public class MessageHandler(TextBox receivedMessagesBox)
 
                 if (jsonMessage is not null)
                 {
-                    receivedBox.Text += jsonMessage.Data + '\n';
+                    receivedBox.Text += jsonMessage.Sender + '\n' + jsonMessage.Data + "\n\n";
                 }
             }
         }
     }
     
     
-    private static string ChatToJson(string message)
+    private string ChatToJson(string message)
     {
-        Message newMessage = new("chat", message);
+        Message newMessage = new("chat", username, message);
 
         string jsonString = JsonSerializer.Serialize(newMessage);
 
