@@ -7,10 +7,9 @@ using System.IO;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using Avalonia.Controls;
-using Avalonia.LogicalTree;
 using Avalonia.VisualTree;
 using System.Linq;
-using System.Numerics;
+using Avalonia.Media;
 
 namespace TheVoid;
 
@@ -21,40 +20,51 @@ public class Message(string type, string sender, string data)
     public string Data => data;
 }
 
-public class MessageHandler(string name, TextBox receivedMessagesBox)
+public class MessageHandler(string name, ListBox receivedMessagesBox, TextBlock isConnectedText)
 {
     private readonly Uri uri = new("wss://the-void.cc");
     private readonly Queue<string> messageQueue = new();
 
     private string username => name;
-    private TextBox receivedBox => receivedMessagesBox;
+    private ListBox messageBox => receivedMessagesBox;
+    private TextBlock connectionText => isConnectedText;
 
-    public string Username {get {return username;}}
+    private string previousSender = "";
+
+    public string Username { get {return username;} }
+    public string PreviousSender { get {return previousSender;} set {previousSender = value;} }
 
     public async void MessageLoop()
     {
-        ClientWebSocket ws = new();
-
-        // Continue trying to connect if unable
-        while (ws.State != WebSocketState.Open)
+        while (true)
         {
-            try
+            ClientWebSocket ws = new();
+            ws.Options.KeepAliveInterval = TimeSpan.FromSeconds(20);
+
+            // Continue trying to connect if unable
+            while (ws.State != WebSocketState.Open)
             {
-                ws.Dispose();
-                ws = new();
-                await ws.ConnectAsync(uri, default);
-            } 
-            catch (WebSocketException)
-            {
-                await Task.Delay(1000);
+                SetConnectionText(false);
+                try
+                {
+                    ws.Dispose();
+                    ws = new();
+                    await ws.ConnectAsync(uri, default);
+                } 
+                catch (WebSocketException)
+                {
+                    await Task.Delay(1000);
+                }
             }
+
+            SetConnectionText(true);
+
+            // Does receiving and sending without locking out one of them
+            var receiveTask = ReceiveMessages(ws);
+            var sendTask = SendMessages(ws);
+
+            await Task.WhenAll(receiveTask, sendTask);
         }
-
-        // Does receiving and sending without locking out one of them
-        var receiveTask = ReceiveMessages(ws);
-        var sendTask = SendMessages(ws);
-
-        await Task.WhenAll(receiveTask, sendTask);
     }
 
     public void SendChatMessage(string chatMessage)
@@ -74,6 +84,11 @@ public class MessageHandler(string name, TextBox receivedMessagesBox)
                 await ws.SendAsync(buffer, WebSocketMessageType.Text, true, CancellationToken.None);     
             }
 
+            if (ws.State != WebSocketState.Open)
+            {
+                return;
+            }
+
             await Task.Delay(10);
         }
     }
@@ -83,51 +98,81 @@ public class MessageHandler(string name, TextBox receivedMessagesBox)
         var receiveBuffer = new byte[1024];
         while (ws.State == WebSocketState.Open)
         {
-            // Listen for messages from the server
-            var result = await ws.ReceiveAsync(new ArraySegment<byte>(receiveBuffer), CancellationToken.None);
-            if (result.MessageType == WebSocketMessageType.Close)
-            {
-                Console.WriteLine("Server closed the connection.");
-                await ws.CloseAsync(WebSocketCloseStatus.NormalClosure, "Closing", CancellationToken.None);
-            }
-            else
-            {
-                // Makes sure the whole message is received
-                MemoryStream byteMessage = new();
-                byteMessage.Write(receiveBuffer, 0, result.Count);
+            try {
+                // Listen for messages from the server
+                var result = await ws.ReceiveAsync(new ArraySegment<byte>(receiveBuffer), CancellationToken.None);
 
-                while (!result.EndOfMessage)
+                if (result.MessageType == WebSocketMessageType.Close)
                 {
-                    result = await ws.ReceiveAsync(new ArraySegment<byte>(receiveBuffer), CancellationToken.None);
-                    byteMessage.Write(receiveBuffer, 0, result.Count);
+                    Console.WriteLine("Server closed the connection.");
+                    await ws.CloseAsync(WebSocketCloseStatus.NormalClosure, "Closing", CancellationToken.None);
                 }
-
-                string receivedMessage = Encoding.UTF8.GetString(byteMessage.ToArray(), 0, (int) byteMessage.Length);
-                Message? jsonMessage = JsonSerializer.Deserialize<Message>(receivedMessage);
-
-                if (jsonMessage is not null)
+                else
                 {
-                    if (jsonMessage.Type == "chat")
+                    // Makes sure the whole message is received
+                    MemoryStream byteMessage = new();
+                    byteMessage.Write(receiveBuffer, 0, result.Count);
+
+                    while (!result.EndOfMessage)
                     {
-                        // Scroll if you're at bottom
-                        bool shouldScrollDown = false;
-                        ScrollViewer? receivedBoxScroll = receivedBox.GetVisualDescendants().OfType<ScrollViewer>().FirstOrDefault();
-                        if (receivedBoxScroll is not null)
+                        result = await ws.ReceiveAsync(new ArraySegment<byte>(receiveBuffer), CancellationToken.None);
+                        byteMessage.Write(receiveBuffer, 0, result.Count);
+                    }
+
+                    string receivedMessage = Encoding.UTF8.GetString(byteMessage.ToArray(), 0, (int) byteMessage.Length);
+                    Message? jsonMessage = JsonSerializer.Deserialize<Message>(receivedMessage);
+
+                    if (jsonMessage is not null)
+                    {
+                        if (jsonMessage.Type == "chat")
                         {
-                            if (receivedBoxScroll.Offset.Y == receivedBoxScroll.ScrollBarMaximum.Y)
+                            // Scroll if you're at bottom
+                            bool shouldScrollDown = false;
+                            ScrollViewer? messageBoxScroll = messageBox.GetVisualDescendants().OfType<ScrollViewer>().FirstOrDefault();
+                            if (messageBoxScroll is not null)
                             {
-                                shouldScrollDown = true;
+                                if (messageBoxScroll.Offset.Y == messageBoxScroll.ScrollBarMaximum.Y)
+                                {
+                                    shouldScrollDown = true;
+                                }
                             }
-                        }
 
-                        receivedBox.Text += jsonMessage.Sender + '\n' + jsonMessage.Data + "\n\n";
+                            string messageText; //username == previousSender ? jsonMessage.Data : jsonMessage.Sender + " (You)\n" + jsonMessage.Data;
 
-                        if (shouldScrollDown)
-                        {
-                            receivedBoxScroll?.ScrollToEnd();
+                            if (jsonMessage.Sender == previousSender)
+                            {
+                                messageText = jsonMessage.Data;
+                            }
+                            else
+                            {
+                                messageText = jsonMessage.Sender + "\n" + jsonMessage.Data;
+                                previousSender = jsonMessage.Sender;
+
+                                int itemCount = messageBox.ItemCount;
+
+                                if (itemCount > 0)
+                                {
+                                    messageBox.Items[itemCount - 1] += "\n";
+                                }
+                            }
+
+                            messageBox.Items.Add(messageText);
+
+                            if (shouldScrollDown)
+                            {
+                                messageBoxScroll?.ScrollToEnd();
+                            }
                         }
                     }
                 }
+            }
+            catch (WebSocketException)
+            {
+                return;
+            }
+            catch (OperationCanceledException)
+            {
+                return;
             }
         }
     }
@@ -140,5 +185,22 @@ public class MessageHandler(string name, TextBox receivedMessagesBox)
         string jsonString = JsonSerializer.Serialize(newMessage);
 
         return jsonString;
+    }
+
+    private void SetConnectionText(bool connected)
+    {
+        if (connected)
+        {
+            connectionText.Text = "Connected";
+            connectionText.Foreground = SolidColorBrush.Parse("#33CC33");
+            messageBox.Foreground = SolidColorBrush.Parse("#EEEEEE");
+        }
+        else
+        {
+            connectionText.Text = "Attempting to Connect...";
+            connectionText.Foreground = SolidColorBrush.Parse("#CC3333");
+
+            int itemCount = messageBox.ItemCount;
+        }
     }
 }

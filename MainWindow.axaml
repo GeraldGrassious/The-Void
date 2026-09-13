@@ -16,7 +16,17 @@
         KeyDown="Window_KeyDown">
 
         <Window.Styles>
-            <Style Selector="TextBox.messageBox">
+            <Style Selector="TextBlock.connectionText">
+                <Setter Property="DockPanel.Dock" Value="Left"/>
+                <Setter Property="Margin" Value="10"/>
+                <Setter Property="Background" Value="Transparent"/>
+                <Setter Property="Foreground" Value="#CC3333"/>
+                <Setter Property="FontFamily" Value="{StaticResource LowerPixel}"/>
+                <Setter Property="VerticalAlignment" Value="Center"/>
+                <Setter Property="IsVisible" Value="False"/>
+            </Style>
+
+            <Style Selector="TextBox.messageInput">
                 <!-- <Setter Property="AcceptsReturn" Value="True"/> -->
                 <Setter Property="TextWrapping" Value="Wrap"/>
                 <Setter Property="Margin" Value="20"/>
@@ -32,20 +42,18 @@
                 <Setter Property="Foreground" Value="#EEEEEE"></Setter>
             </Style>
 
-            <Style Selector="TextBox.messageBox:focus /template/ Border#PART_BorderElement">
+            <Style Selector="TextBox.messageInput:focus /template/ Border#PART_BorderElement">
                 <Setter Property="Background" Value="#111111"/>
                 <Setter Property="BorderBrush" Value="#111111"/>
                 <Setter Property="BorderThickness" Value="0"/>
             </Style>
 
-            <Style Selector="TextBox.messageBox:pointerover /template/ Border#PART_BorderElement">
+            <Style Selector="TextBox.messageInput:pointerover /template/ Border#PART_BorderElement">
                 <Setter Property="BorderBrush" Value="#111111"/>
                 <Setter Property="Background" Value="#111111"/>
             </Style>
 
-            <Style Selector="TextBox.receivedBox">
-                <Setter Property="IsReadOnly" Value="True"/>
-                <Setter Property="TextWrapping" Value="Wrap"/>
+            <Style Selector="ListBox.messageBox">
                 <Setter Property="Margin" Value="20"/>
                 <Setter Property="Padding" Value="15"/>
                 <Setter Property="Background" Value="#111111"/>
@@ -57,39 +65,38 @@
                 <Setter Property="LetterSpacing" Value="1"/>
                 <Setter Property="Foreground" Value="#EEEEEE"></Setter>
             </Style>
-
-            <Style Selector="TextBox.receivedBox:focus /template/ Border#PART_BorderElement">
-                <Setter Property="Background" Value="#111111"/>
-                <Setter Property="BorderBrush" Value="#111111"/>
-                <Setter Property="BorderThickness" Value="0"/>
-            </Style>
-
-            <Style Selector="TextBox.receivedBox:pointerover /template/ Border#PART_BorderElement">
-                <Setter Property="BorderBrush" Value="#111111"/>
-                <Setter Property="Background" Value="#111111"/>
-            </Style>
             
         </Window.Styles>
 
-        <Grid RowDefinitions="10*, 50*, 30*">
+        <Grid RowDefinitions="10*, 60*, 30*">
             <Border Grid.Row="0" Background="#010101" VerticalAlignment="Top" PointerPressed="TitleBar_PointerPressed">
-                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Background="Transparent">
-    
-                    <Button Content="—" VerticalAlignment="Center" Background="Transparent" CornerRadius="0" FontSize="18" Click="MinimizeButton_Clicked"/>
-    
-                    <Button Content="☐" VerticalAlignment="Center"  Background="Transparent" CornerRadius="0" FontSize="18" Click="MaximizeButton_Clicked"/>
-    
-                    <Button Content="✕" VerticalAlignment="Center"  Background="Transparent" CornerRadius="0" FontSize="18" Click="CloseButton_Clicked"/>
-    
-                </StackPanel>
+                <DockPanel>
+                    <TextBlock x:Name="ConnectionText" Classes="connectionText">Attempting to Connect...</TextBlock>
+
+                    <Button DockPanel.Dock="Right" Content="✕" VerticalAlignment="Center"  Background="Transparent" Foreground="#EEEEEE" CornerRadius="0" FontSize="18" Click="CloseButton_Clicked"/>
+                    <Button DockPanel.Dock="Right" Content="☐" VerticalAlignment="Center"  Background="Transparent" Foreground="#EEEEEE" CornerRadius="0" FontSize="18" Click="MaximizeButton_Clicked"/>
+                    <Button DockPanel.Dock="Right" Content="—" HorizontalAlignment="Right" VerticalAlignment="Center" Background="Transparent" Foreground="#EEEEEE" CornerRadius="0" FontSize="18" Click="MinimizeButton_Clicked"/>
+                </DockPanel>
             </Border>
-
             
-            <TextBox Grid.Row="1" x:Name="ReceivedBox" Classes="receivedBox" IsEnabled="False" IsVisible="False"/>
-            
-            <TextBox Grid.Row="2" x:Name="MessageBox" Classes="messageBox" AcceptsReturn="True" KeyDown="MessageBox_KeyDown" IsEnabled="False" IsVisible="False"/>
+            <ListBox Grid.Row="1" x:Name="MessageBox" Classes="messageBox" SelectionMode="Single" IsEnabled="False" IsVisible="False" KeyDown="MessageBox_KeyDown">
+                <ListBox.Styles>
+                    <Style Selector="ListBoxItem">
+                        <Setter Property="Padding" Value="0"/>
+                        <Setter Property="CornerRadius" Value="4"/>
+                    </Style>
+                    <Style Selector="ListBoxItem:selected /template/ ContentPresenter">
+                        <Setter Property="Background" Value="Transparent" />
+                    </Style>
+                    <Style Selector="ListBoxItem:pointerover /template/ ContentPresenter">
+                        <Setter Property="Background" Value="Transparent" />
+                    </Style>
+                </ListBox.Styles>
+            </ListBox>
+        
+            <TextBox Grid.Row="2" x:Name="MessageInput" Classes="messageInput" AcceptsReturn="True" KeyDown="MessageInput_KeyDown" IsEnabled="False" IsVisible="False"/>
 
-            <TextBox Grid.Row="2" x:Name="NameBox" Classes="messageBox" FontSize="50" PlaceholderText="Type Username Here..." KeyDown="NameBox_KeyDown"/>
+            <TextBox Grid.Row="2" x:Name="NameBox" Classes="messageInput" FontSize="50" PlaceholderText="Type Username Here..." KeyDown="NameBox_KeyDown"/>
             
         </Grid>
 

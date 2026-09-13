@@ -1,3 +1,5 @@
+using System.Reflection.Metadata.Ecma335;
+using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
@@ -11,11 +13,19 @@ public partial class MainWindow : Window
     {
         InitializeComponent();
 
-        MessageBox.AddHandler(
-            InputElement.KeyDownEvent,  // Detects key down event
-            MessageBox_KeyDown,  // Function to call when event is fired
+        MessageInput.AddHandler(
+            KeyDownEvent,  // Detects key down event
+            MessageInput_KeyDown,  // Function to call when event is fired
             RoutingStrategies.Tunnel,  // Sends event before TextBox processes it
-            true);  // Allows handled events to be processed (Needed to work for some reason)
+            true  // Allows handled events to be processed (Needed to work for some reason)
+        );
+
+        MessageBox.AddHandler(
+            KeyDownEvent,
+            MessageBox_KeyDown,
+            RoutingStrategies.Tunnel,
+            true
+        );
 
         messageHandler = null;
 
@@ -63,22 +73,24 @@ public partial class MainWindow : Window
         {
             if (!string.IsNullOrEmpty(NameBox.Text) && !string.IsNullOrWhiteSpace(NameBox.Text))
             {  
-                messageHandler = new(NameBox.Text, ReceivedBox);
+                messageHandler = new(NameBox.Text, MessageBox, ConnectionText);
                 messageHandler.MessageLoop();
 
                 NameBox.IsEnabled = false;
                 NameBox.IsVisible = false;
 
-                ReceivedBox.IsEnabled = true;
-                ReceivedBox.IsVisible = true;
-
                 MessageBox.IsEnabled = true;
                 MessageBox.IsVisible = true;
+
+                MessageInput.IsEnabled = true;
+                MessageInput.IsVisible = true;
+
+                ConnectionText.IsVisible = true;
             }
         }
     }
 
-    private void MessageBox_KeyDown(object? sender, KeyEventArgs e)
+    private void MessageInput_KeyDown(object? sender, KeyEventArgs e)
     {
         if (e.Key != Key.Enter)
         {
@@ -91,14 +103,51 @@ public partial class MainWindow : Window
         }
 
         e.Handled = true;
-        if (!string.IsNullOrEmpty(MessageBox.Text) && !string.IsNullOrWhiteSpace(MessageBox.Text))
+        if (!string.IsNullOrEmpty(MessageInput.Text) && !string.IsNullOrWhiteSpace(MessageInput.Text))
         {
-            messageHandler?.SendChatMessage(MessageBox.Text);
-            ReceivedBox.Text += messageHandler?.Username + " (You)\n" + MessageBox.Text + "\n\n";
-            MessageBox.Clear();
+            messageHandler?.SendChatMessage(MessageInput.Text);
+
+            string messageText;
+            
+            if (messageHandler?.Username == messageHandler?.PreviousSender)
+            {
+                messageText = MessageInput.Text;
+            }
+            else
+            {
+                messageText = messageHandler?.Username + " (You)\n" + MessageInput.Text;
+                messageHandler?.PreviousSender = messageHandler.Username;
+
+                int itemCount = MessageBox.ItemCount;
+
+                if (itemCount > 0)
+                {
+                    MessageBox.Items[itemCount - 1] += "\n";
+                }
+            }
+                
+
+            MessageBox.Items.Add(messageText);
+            MessageInput.Clear();
 
             ScrollToBottom();
         }
+    }
+
+    private void MessageBox_KeyDown(object? sender, KeyEventArgs e)
+    {
+        if (e.Key != Key.Down)
+        {
+            return;
+        }
+
+        if (!e.KeyModifiers.HasFlag(KeyModifiers.Control))
+        {
+            return;
+        }
+
+        e.Handled = true;
+        ScrollToBottom();
     }
 
     private void Window_KeyDown(object? sender, KeyEventArgs e)
@@ -107,16 +156,20 @@ public partial class MainWindow : Window
         {
             ScrollToBottom();
         }
-
     }
 
     private void ScrollToBottom()
     {
-        int lineCount = ReceivedBox.GetLineCount();
+        int lineCount = MessageBox.ItemCount;
             
         if (lineCount > 0)
         {
-            ReceivedBox.ScrollToLine(ReceivedBox.GetLineCount() - 1);
+            var bottomItem = MessageBox.Items[lineCount - 1];
+
+            if (bottomItem is not null)
+            {
+                MessageBox.ScrollIntoView(bottomItem);
+            }
         }
     }
 }
