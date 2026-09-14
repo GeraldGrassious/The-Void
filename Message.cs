@@ -14,11 +14,12 @@ using Avalonia.Controls.Documents;
 
 namespace TheVoid;
 
-public class Message(string type, string sender, string senderNameColour, string data)
+public class Message(string type, string sender, string senderNameColour, string time, string data)
 {
     public string Type => type;
     public string Sender => sender;
     public string SenderNameColour => senderNameColour;
+    public string Time => time;
     public string Data => data;
 }
 
@@ -149,7 +150,10 @@ public class MessageHandler(string name, string nameColour, ListBox receivedMess
                             }
                             else
                             {
-                                messageBlock?.Inlines?.Add(new Run(jsonMessage.Sender + "\n") {FontWeight = FontWeight.Bold, Foreground = SolidColorBrush.Parse(jsonMessage.SenderNameColour)});
+                                var localTime = DateTime.Parse(jsonMessage.Time).ToLocalTime();
+                                string timeString = $"{localTime.Day}-{localTime.Month}-{localTime.Year} {localTime.Hour}:{(localTime.Minute < 10 ? $"0{localTime.Minute}" : localTime.Minute)}";
+
+                                messageBlock?.Inlines?.Add(new Run($"{jsonMessage.Sender} {timeString}\n") {FontWeight = FontWeight.Bold, Foreground = SolidColorBrush.Parse(jsonMessage.SenderNameColour)});
                                 messageBlock?.Inlines?.Add(new Run(jsonMessage.Data));
 
                                 previousSender = jsonMessage.Sender;
@@ -198,7 +202,7 @@ public class MessageHandler(string name, string nameColour, ListBox receivedMess
     
     private string ChatToJson(string message)
     {
-        Message newMessage = new("chat", username, usernameColour, message);
+        Message newMessage = new("chat", username, usernameColour, "", message);
 
         string jsonString = JsonSerializer.Serialize(newMessage);
 

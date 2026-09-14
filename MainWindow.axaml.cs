@@ -1,12 +1,9 @@
-using System.Reflection.Metadata.Ecma335;
-using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Controls.Documents;
-using Avalonia.Data;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Media;
-using Avalonia.Skia;
+using System;
 
 namespace TheVoid;
 
@@ -127,7 +124,10 @@ public partial class MainWindow : Window
             }
             else
             {
-                Run nameFormatting = new(messageHandler?.Username + " (You)\n") {FontWeight = FontWeight.Bold, Foreground = SolidColorBrush.Parse(messageHandler!.UsernameColour)};
+                var localTime = DateTime.Now;
+                string timeString = $"{localTime.Day}-{localTime.Month}-{localTime.Year} {localTime.Hour}:{(localTime.Minute < 10 ? $"0{localTime.Minute}" : localTime.Minute)}";
+
+                Run nameFormatting = new($"{messageHandler?.Username} (You) {timeString}\n") {FontWeight = FontWeight.Bold, Foreground = SolidColorBrush.Parse(messageHandler!.UsernameColour)};
                 messageBlock?.Inlines?.Add(nameFormatting);
                 messageBlock?.Inlines?.Add(MessageInput.Text);
                 messageHandler?.PreviousSender = messageHandler.Username;
