@@ -6,6 +6,7 @@ using Avalonia.Data;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Media;
+using Avalonia.Skia;
 
 namespace TheVoid;
 
@@ -118,7 +119,7 @@ public partial class MainWindow : Window
         {
             messageHandler?.SendChatMessage(MessageInput.Text);
 
-            TextBlock messageBlock = new() {TextWrapping = TextWrapping.Wrap};
+            TextBlock messageBlock = new() {TextWrapping = TextWrapping.Wrap, TextAlignment = TextAlignment.DetectFromContent};
             
             if (messageHandler?.Username == messageHandler?.PreviousSender)
             {

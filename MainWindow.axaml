@@ -94,11 +94,11 @@
                 </ListBox.Styles>
             </ListBox>
 
-            <ColorView x:Name="ColourPicker" Grid.Row="1" IsAlphaEnabled="False" IsAlphaVisible="False" IsAccentColorsVisible="False" IsColorComponentsVisible="False" IsColorPaletteVisible="False" ColorChanged="ColourPicker_ColourChanged"/>
+            <ColorView x:Name="ColourPicker" Grid.Row="1" IsAlphaEnabled="False" IsAlphaVisible="False" IsAccentColorsVisible="False" IsColorPaletteVisible="False" ColorChanged="ColourPicker_ColourChanged"/>
         
-            <TextBox Grid.Row="2" Grid.Column="0" x:Name="MessageInput" Classes="messageInput" AcceptsReturn="True" KeyDown="MessageInput_KeyDown" IsEnabled="False" IsVisible="False"/>
+            <TextBox Grid.Row="2" Grid.Column="0" x:Name="MessageInput" Classes="messageInput" TextAlignment="DetectFromContent" AcceptsReturn="True" KeyDown="MessageInput_KeyDown" IsEnabled="False" IsVisible="False"/>
 
-            <TextBox Grid.Row="2" Grid.Column="0" x:Name="NameBox" Classes="messageInput" FontSize="50" PlaceholderText="Type Username Here..." KeyDown="NameBox_KeyDown"/>
+            <TextBox Grid.Row="2" Grid.Column="0" x:Name="NameBox" Classes="messageInput" TextAlignment="DetectFromContent" FontSize="50" PlaceholderText="Type Username Here..." KeyDown="NameBox_KeyDown"/>
             
         </Grid>
 

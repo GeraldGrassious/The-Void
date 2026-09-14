@@ -141,7 +141,7 @@ public class MessageHandler(string name, string nameColour, ListBox receivedMess
                                 }
                             }
 
-                            TextBlock messageBlock = new() {TextWrapping = TextWrapping.Wrap};
+                            TextBlock messageBlock = new() {TextWrapping = TextWrapping.Wrap, TextAlignment = TextAlignment.DetectFromContent};
 
                             if (jsonMessage.Sender == previousSender)
                             {
