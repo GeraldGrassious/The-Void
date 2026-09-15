@@ -189,11 +189,13 @@ public class MessageHandler(string name, string nameColour, ListBox receivedMess
 
                                 if (messageBox.ItemCount > 0)
                                 {
+                                    messageBox.Items.Add("");
                                     var bottomItem = messageBox.Items[^1];
 
                                     if (bottomItem is not null)
                                     {
                                         messageBox.ScrollIntoView(bottomItem);
+                                        messageBox.Items.RemoveAt(messageBox.ItemCount - 1);
                                     }
                                 }
                             }

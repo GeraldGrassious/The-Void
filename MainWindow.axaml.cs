@@ -187,11 +187,13 @@ public partial class MainWindow : Window
     {
         if (MessageBox.ItemCount > 0)
         {
+            MessageBox.Items.Add("");
             var bottomItem = MessageBox.Items[^1];
 
             if (bottomItem is not null)
             {
                 MessageBox.ScrollIntoView(bottomItem);
+                MessageBox.Items.RemoveAt(MessageBox.ItemCount - 1);
             }
         }
     }
