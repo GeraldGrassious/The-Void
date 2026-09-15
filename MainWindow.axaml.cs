@@ -75,7 +75,7 @@ public partial class MainWindow : Window
         {
             if (!string.IsNullOrEmpty(NameBox.Text) && !string.IsNullOrWhiteSpace(NameBox.Text))
             {  
-                messageHandler = new(NameBox.Text, ColourPicker.Color.ToString(), MessageBox, ConnectionText);
+                messageHandler = new(NameBox.Text.Trim(), ColourPicker.Color.ToString(), MessageBox, ConnectionText);
                 messageHandler.MessageLoop();
 
                 NameBox.IsEnabled = false;
@@ -115,13 +115,15 @@ public partial class MainWindow : Window
         e.Handled = true;
         if (!string.IsNullOrEmpty(MessageInput.Text) && !string.IsNullOrWhiteSpace(MessageInput.Text))
         {
-            messageHandler?.SendChatMessage(MessageInput.Text);
+            string trimmedText = MessageInput.Text.Trim();
+
+            messageHandler?.SendChatMessage(trimmedText);
 
             TextBlock messageBlock = new() {TextWrapping = TextWrapping.Wrap, TextAlignment = TextAlignment.DetectFromContent};
             
             if (messageHandler?.Username == messageHandler?.PreviousSender)
             {
-                messageBlock?.Inlines?.Add(new Run(MessageInput.Text));
+                messageBlock?.Inlines?.Add(new Run(trimmedText));
             }
             else
             {
@@ -141,7 +143,7 @@ public partial class MainWindow : Window
                 Run timeFormatting = new($"{timeString}\n") {Foreground = SolidColorBrush.Parse("#444549")};
                 messageBlock?.Inlines?.Add(nameFormatting);
                 messageBlock?.Inlines?.Add(timeFormatting);
-                messageBlock?.Inlines?.Add(MessageInput.Text);
+                messageBlock?.Inlines?.Add(trimmedText);
                 messageHandler?.PreviousSender = messageHandler.Username;
 
                 if (MessageBox.ItemCount > 0)
