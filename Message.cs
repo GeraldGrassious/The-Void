@@ -133,12 +133,7 @@ public class MessageHandler(string name, string nameColour, ListBox receivedMess
                         {
                             // Scroll if you're at bottom
                             bool shouldScrollDown = false;
-
-                            if (jsonMessage.Type == "history")
-                            {
-                                shouldScrollDown = true;
-                            }
-
+                            
                             ScrollViewer? messageBoxScroll = messageBox.GetVisualDescendants().OfType<ScrollViewer>().FirstOrDefault();
                             if (messageBoxScroll is not null)
                             {
@@ -183,7 +178,7 @@ public class MessageHandler(string name, string nameColour, ListBox receivedMess
 
                             messageBox.Items.Add(messageBlock);
 
-                            if (shouldScrollDown)
+                            if (shouldScrollDown || jsonMessage.Type == "history")
                             {
                                 messageBoxScroll?.Offset = new Avalonia.Vector(0, messageBoxScroll.ScrollBarMaximum.Y);
 
