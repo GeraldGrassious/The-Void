@@ -129,10 +129,16 @@ public class MessageHandler(string name, string nameColour, ListBox receivedMess
 
                     if (jsonMessage is not null)
                     {
-                        if (jsonMessage.Type == "chat")
+                        if (jsonMessage.Type == "chat" || jsonMessage.Type == "history")
                         {
                             // Scroll if you're at bottom
                             bool shouldScrollDown = false;
+
+                            if (jsonMessage.Type == "history")
+                            {
+                                shouldScrollDown = true;
+                            }
+
                             ScrollViewer? messageBoxScroll = messageBox.GetVisualDescendants().OfType<ScrollViewer>().FirstOrDefault();
                             if (messageBoxScroll is not null)
                             {
@@ -151,18 +157,26 @@ public class MessageHandler(string name, string nameColour, ListBox receivedMess
                             else
                             {
                                 var localTime = DateTime.Parse(jsonMessage.Time).ToLocalTime();
-                                string timeString = $"{localTime.Day}-{localTime.Month}-{localTime.Year} {localTime.Hour}:{(localTime.Minute < 10 ? $"0{localTime.Minute}" : localTime.Minute)}";
+                                int hour = localTime.Hour;
+                                string daySection = "AM";
 
-                                messageBlock?.Inlines?.Add(new Run($"{jsonMessage.Sender} {timeString}\n") {FontWeight = FontWeight.Bold, Foreground = SolidColorBrush.Parse(jsonMessage.SenderNameColour)});
+                                if (localTime.Hour > 12)
+                                {
+                                    hour -= 12;
+                                    daySection = "PM";
+                                }
+
+                                string timeString = $"{localTime.Day}-{localTime.Month}-{localTime.Year} {hour}:{(localTime.Minute < 10 ? $"0{localTime.Minute}" : localTime.Minute)}{daySection}";
+
+                                messageBlock?.Inlines?.Add(new Run($"{jsonMessage.Sender} ") {FontWeight = FontWeight.Bold, Foreground = SolidColorBrush.Parse(jsonMessage.SenderNameColour)});
+                                messageBlock?.Inlines?.Add(new Run($"{timeString}\n") {Foreground = SolidColorBrush.Parse("#444549")});
                                 messageBlock?.Inlines?.Add(new Run(jsonMessage.Data));
 
                                 previousSender = jsonMessage.Sender;
 
-                                int itemCount = messageBox.ItemCount;
-
-                                if (itemCount > 0)
+                                if (messageBox.ItemCount > 0)
                                 {
-                                    var itemBlock = (TextBlock?) messageBox.Items[itemCount - 1];
+                                    var itemBlock = (TextBlock?) messageBox.Items[^1];
                                     itemBlock?.Inlines?.Add(new Run("\n"));
                                 }
                             }
@@ -172,11 +186,10 @@ public class MessageHandler(string name, string nameColour, ListBox receivedMess
                             if (shouldScrollDown)
                             {
                                 messageBoxScroll?.Offset = new Avalonia.Vector(0, messageBoxScroll.ScrollBarMaximum.Y);
-                                int itemCount = messageBox.ItemCount;
 
-                                if (itemCount > 0)
+                                if (messageBox.ItemCount > 0)
                                 {
-                                    var bottomItem = messageBox.Items[itemCount - 1];
+                                    var bottomItem = messageBox.Items[^1];
 
                                     if (bottomItem is not null)
                                     {

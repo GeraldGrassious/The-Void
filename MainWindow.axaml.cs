@@ -35,6 +35,7 @@ public partial class MainWindow : Window
 
     private void TitleBar_PointerPressed(object? sender, PointerPressedEventArgs e)
     {
+        MaximizeButton.Content = "☐";
         if (e.GetCurrentPoint(this).Properties.IsLeftButtonPressed)
         {
             BeginMoveDrag(e);
@@ -125,18 +126,27 @@ public partial class MainWindow : Window
             else
             {
                 var localTime = DateTime.Now;
-                string timeString = $"{localTime.Day}-{localTime.Month}-{localTime.Year} {localTime.Hour}:{(localTime.Minute < 10 ? $"0{localTime.Minute}" : localTime.Minute)}";
+                int hour = localTime.Hour;
+                string daySection = "AM";
 
-                Run nameFormatting = new($"{messageHandler?.Username} (You) {timeString}\n") {FontWeight = FontWeight.Bold, Foreground = SolidColorBrush.Parse(messageHandler!.UsernameColour)};
+                if (localTime.Hour > 12)
+                {
+                    hour -= 12;
+                    daySection = "PM";
+                }
+
+                string timeString = $"{localTime.Day}-{localTime.Month}-{localTime.Year} {hour}:{(localTime.Minute < 10 ? $"0{localTime.Minute}" : localTime.Minute)}{daySection}";
+
+                Run nameFormatting = new($"{messageHandler?.Username} (You) ") {FontWeight = FontWeight.Bold, Foreground = SolidColorBrush.Parse(messageHandler!.UsernameColour)};
+                Run timeFormatting = new($"{timeString}\n") {Foreground = SolidColorBrush.Parse("#444549")};
                 messageBlock?.Inlines?.Add(nameFormatting);
+                messageBlock?.Inlines?.Add(timeFormatting);
                 messageBlock?.Inlines?.Add(MessageInput.Text);
                 messageHandler?.PreviousSender = messageHandler.Username;
 
-                int itemCount = MessageBox.ItemCount;
-
-                if (itemCount > 0)
+                if (MessageBox.ItemCount > 0)
                 {
-                    var textBlock = (TextBlock?) MessageBox.Items[itemCount - 1];
+                    var textBlock = (TextBlock?) MessageBox.Items[^1];
                     textBlock?.Inlines?.Add(new Run("\n"));
                 }
             }
@@ -175,11 +185,9 @@ public partial class MainWindow : Window
 
     private void ScrollToBottom()
     {
-        int lineCount = MessageBox.ItemCount;
-            
-        if (lineCount > 0)
+        if (MessageBox.ItemCount > 0)
         {
-            var bottomItem = MessageBox.Items[lineCount - 1];
+            var bottomItem = MessageBox.Items[^1];
 
             if (bottomItem is not null)
             {

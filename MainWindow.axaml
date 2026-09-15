@@ -74,7 +74,7 @@
                     <TextBlock x:Name="ConnectionText" Classes="connectionText">Attempting to Connect...</TextBlock>
 
                     <Button DockPanel.Dock="Right" Content="✕" VerticalAlignment="Center"  Background="Transparent" Foreground="#EEEEEE" CornerRadius="0" FontSize="18" Click="CloseButton_Clicked"/>
-                    <Button DockPanel.Dock="Right" Content="☐" VerticalAlignment="Center"  Background="Transparent" Foreground="#EEEEEE" CornerRadius="0" FontSize="18" Click="MaximizeButton_Clicked"/>
+                    <Button DockPanel.Dock="Right" x:Name="MaximizeButton" Content="☐" VerticalAlignment="Center"  Background="Transparent" Foreground="#EEEEEE" CornerRadius="0" FontSize="18" Click="MaximizeButton_Clicked"/>
                     <Button DockPanel.Dock="Right" Content="—" HorizontalAlignment="Right" VerticalAlignment="Center" Background="Transparent" Foreground="#EEEEEE" CornerRadius="0" FontSize="18" Click="MinimizeButton_Clicked"/>
                 </DockPanel>
             </Border>
@@ -96,9 +96,9 @@
 
             <ColorView x:Name="ColourPicker" Grid.Row="1" IsAlphaEnabled="False" IsAlphaVisible="False" IsAccentColorsVisible="False" IsColorPaletteVisible="False" ColorChanged="ColourPicker_ColourChanged"/>
         
-            <TextBox Grid.Row="2" Grid.Column="0" x:Name="MessageInput" Classes="messageInput" TextAlignment="DetectFromContent" AcceptsReturn="True" KeyDown="MessageInput_KeyDown" IsEnabled="False" IsVisible="False"/>
+            <TextBox Grid.Row="2" Grid.Column="0" x:Name="MessageInput" Classes="messageInput" MaxLength="7500" TextAlignment="DetectFromContent" AcceptsReturn="True" KeyDown="MessageInput_KeyDown" IsEnabled="False" IsVisible="False"/>
 
-            <TextBox Grid.Row="2" Grid.Column="0" x:Name="NameBox" Classes="messageInput" TextAlignment="DetectFromContent" FontSize="50" PlaceholderText="Type Username Here..." KeyDown="NameBox_KeyDown"/>
+            <TextBox Grid.Row="2" Grid.Column="0" x:Name="NameBox" Classes="messageInput" MaxLength="75" TextAlignment="DetectFromContent" FontSize="50" PlaceholderText="Type Username Here..." KeyDown="NameBox_KeyDown"/>
             
         </Grid>
 
